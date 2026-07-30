@@ -1,4 +1,4 @@
-# Base Project (Spring Boot + Vue.js)
+# jdw_blog (Spring Boot + Vue.js)
 
 여러 프로젝트에서 재사용 가능한 기본 개발 셋입니다.
 
@@ -17,7 +17,7 @@
 ## 폴더 구조
 
 ```
-project-base/
+jdw_blog/
 ├── backend/            Spring Boot API 서버 (독립 실행)
 │   ├── build.gradle
 │   ├── .env.example    DB 접속 정보 예시 (4개 DB 템플릿 포함)
