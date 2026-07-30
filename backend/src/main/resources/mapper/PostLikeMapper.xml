@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.PostLikeMapper">
+
+    <!--
+      Review 지적사항: blog_post_like 는 UNIQUE(post_id, user_id) + soft delete 구조이므로
+      토글 시 매번 INSERT 하면 재클릭 시 UNIQUE 위반 발생 -> 기존 row 존재 시 반드시 UPDATE 로 처리.
+    -->
+    <select id="findActiveState" resultType="java.lang.Boolean">
+        SELECT (deleted_at IS NULL)
+        FROM blog_post_like
+        WHERE post_id = #{postId} AND user_id = #{userId}
+        LIMIT 1
+    </select>
+
+    <insert id="insert">
+        INSERT INTO blog_post_like (post_id, user_id) VALUES (#{postId}, #{userId})
+    </insert>
+
+    <update id="activate">
+        UPDATE blog_post_like SET deleted_at = NULL WHERE post_id = #{postId} AND user_id = #{userId}
+    </update>
+
+    <update id="deactivate">
+        UPDATE blog_post_like SET deleted_at = NOW() WHERE post_id = #{postId} AND user_id = #{userId}
+    </update>
+
+</mapper>

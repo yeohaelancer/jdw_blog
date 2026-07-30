@@ -1,0 +1,72 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.base'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    // Spring Boot 기본 로깅(Logback) 제외 -> Log4j2 사용
+    all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // Logging - Log4j2
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    // MyBatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+    // Swagger (OpenAPI 3) - http://localhost:8080/swagger-ui.html
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // DB Connection Pool (Spring Boot 기본 Hikari 사용)
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+
+    // .env 파일 로컬 로딩 지원 (docker 없이 로컬 개발 시 .env 사용)
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // 인증 - 비밀번호 해시(BCrypt) : spring-security-crypto 단독 사용 (풀 시큐리티 프레임워크 미도입)
+    implementation 'org.springframework.security:spring-security-crypto:6.3.3'
+
+    // 인증 - JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+    // ===== DB Driver (택 1, 필요한 것만 남기고 나머지 주석처리 가능) =====
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'                 // PostgreSQL
+    runtimeOnly 'com.mysql:mysql-connector-j:8.4.0'                 // MySQL
+    runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc:12.8.1.jre11'   // MSSQL
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc11:23.5.0.24.07'     // Oracle
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

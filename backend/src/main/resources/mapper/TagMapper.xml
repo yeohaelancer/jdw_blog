@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.TagMapper">
+
+    <select id="findIdByName" resultType="java.lang.Long">
+        SELECT id FROM blog_tag WHERE name = #{name} AND deleted_at IS NULL
+    </select>
+
+    <!-- name(String) 단일 파라미터라 생성키를 바인딩할 setter 대상이 없음 -> useGeneratedKeys 미사용, 호출부는 insert 후 findIdByName 으로 재조회 -->
+    <insert id="insert">
+        INSERT INTO blog_tag (name) VALUES (#{name})
+    </insert>
+
+    <select id="findNamesByPostId" resultType="string">
+        SELECT t.name
+        FROM blog_post_tag pt JOIN blog_tag t ON t.id = pt.tag_id
+        WHERE pt.post_id = #{postId}
+        ORDER BY t.name
+    </select>
+
+    <select id="findCloudByBlogId" resultType="map">
+        SELECT t.name AS name, COUNT(1) AS postCount
+        FROM blog_tag t
+        JOIN blog_post_tag pt ON pt.tag_id = t.id
+        JOIN blog_post p ON p.id = pt.post_id AND p.deleted_at IS NULL AND p.status = 'PUBLISHED'
+        WHERE p.blog_id = #{blogId}
+        GROUP BY t.name
+        ORDER BY postCount DESC
+    </select>
+
+</mapper>

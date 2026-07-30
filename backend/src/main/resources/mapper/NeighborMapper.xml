@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.NeighborMapper">
+
+    <resultMap id="neighborResultMap" type="com.base.app.dto.NeighborDto">
+        <id property="id" column="id"/>
+        <result property="fromBlogId" column="from_blog_id"/>
+        <result property="toBlogId" column="to_blog_id"/>
+        <result property="neighborType" column="neighbor_type"/>
+        <result property="active" column="active"/>
+    </resultMap>
+
+    <!--
+      soft delete 재사용을 위해 deleted_at 무관하게 항상 row 를 조회한다.
+      (blog_neighbor 는 UNIQUE(from_blog_id, to_blog_id) 이므로 재추가 시 새 INSERT 대신 기존 row 를 재활성화해야 함)
+    -->
+    <select id="findRelation" resultMap="neighborResultMap">
+        SELECT id, from_blog_id, to_blog_id, neighbor_type,
+               (deleted_at IS NULL) AS active
+        FROM blog_neighbor
+        WHERE from_blog_id = #{fromBlogId} AND to_blog_id = #{toBlogId}
+        LIMIT 1
+    </select>
+
+    <!-- 다중 @Param 스칼라 인자라 생성키 바인딩 대상을 특정할 수 없음 -> useGeneratedKeys 미사용 (호출부는 생성 id 미사용) -->
+    <insert id="insert">
+        INSERT INTO blog_neighbor (from_blog_id, to_blog_id, neighbor_type)
+        VALUES (#{fromBlogId}, #{toBlogId}, #{type})
+    </insert>
+
+    <update id="activate">
+        UPDATE blog_neighbor SET deleted_at = NULL, neighbor_type = #{type} WHERE id = #{id}
+    </update>
+
+    <update id="updateType">
+        UPDATE blog_neighbor SET neighbor_type = #{type} WHERE id = #{id}
+    </update>
+
+    <update id="deactivate">
+        UPDATE blog_neighbor SET deleted_at = NOW() WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <select id="findMyNeighbors" resultType="com.base.app.dto.NeighborBlogResponse">
+        SELECT b.id AS blogId, b.blog_name AS blogName, b.profile_image_url AS profileImageUrl,
+               n.neighbor_type AS neighborType
+        FROM blog_neighbor n
+        JOIN blog_blog b ON b.id = n.to_blog_id
+        WHERE n.from_blog_id = #{fromBlogId} AND n.deleted_at IS NULL
+        ORDER BY n.created_at DESC
+    </select>
+
+</mapper>

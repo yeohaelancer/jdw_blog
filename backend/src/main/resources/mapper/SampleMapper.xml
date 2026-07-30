@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.SampleMapper">
+
+    <resultMap id="sampleResultMap" type="com.base.app.dto.SampleDto">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="sampleResultMap">
+        SELECT id, title, content, created_at
+        FROM sample
+        ORDER BY id DESC
+    </select>
+
+    <select id="findById" parameterType="long" resultMap="sampleResultMap">
+        SELECT id, title, content, created_at
+        FROM sample
+        WHERE id = #{id}
+    </select>
+
+    <!--
+      주의: 자동증가 PK 처리 방식은 DB마다 다릅니다.
+      - MySQL / PostgreSQL(SERIAL·IDENTITY) / MSSQL(IDENTITY) : 아래 useGeneratedKeys 방식 그대로 사용 가능
+      - Oracle : SEQUENCE 사용 필요 (예: SELECT SEQ_SAMPLE.NEXTVAL FROM DUAL 을 selectKey로 추가)
+    -->
+    <insert id="insert" parameterType="com.base.app.dto.SampleDto"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sample (title, content, created_at)
+        VALUES (#{title}, #{content}, CURRENT_TIMESTAMP)
+    </insert>
+
+    <update id="update" parameterType="com.base.app.dto.SampleDto">
+        UPDATE sample
+        SET title = #{title},
+            content = #{content}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM sample
+        WHERE id = #{id}
+    </delete>
+
+</mapper>

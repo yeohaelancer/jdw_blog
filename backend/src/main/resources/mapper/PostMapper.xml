@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.PostMapper">
+
+    <insert id="insert" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO blog_post (blog_id, category_id, title, content, thumbnail_url, visibility, status, published_at)
+        VALUES (#{blogId}, #{categoryId}, #{title}, #{content}, #{thumbnailUrl}, #{visibility}, #{status},
+                <if test="status == 'PUBLISHED'">NOW()</if>
+                <if test="status != 'PUBLISHED'">NULL</if>
+                )
+    </insert>
+
+    <resultMap id="detailResultMap" type="com.base.app.dto.post.PostDetailResponse">
+        <id property="id" column="id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="authorUserId" column="author_user_id"/>
+        <result property="blogName" column="blog_name"/>
+        <result property="authorNickname" column="author_nickname"/>
+        <result property="authorProfileImageUrl" column="author_profile_image_url"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="thumbnailUrl" column="thumbnail_url"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="visibility" column="visibility"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="publishedAt" column="published_at"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findDetailById" resultMap="detailResultMap">
+        SELECT p.id, p.blog_id, b.user_id AS author_user_id, b.blog_name,
+               u.nickname AS author_nickname, u.profile_image_url AS author_profile_image_url,
+               p.title, p.content, p.thumbnail_url, p.category_id, c.name AS category_name,
+               p.visibility, p.status, p.view_count, p.like_count, p.comment_count,
+               p.published_at, p.created_at
+        FROM blog_post p
+        JOIN blog_blog b ON b.id = p.blog_id
+        JOIN blog_user u ON u.id = b.user_id
+        LEFT JOIN blog_category c ON c.id = p.category_id
+        WHERE p.id = #{id}
+          AND p.deleted_at IS NULL
+    </select>
+
+    <sql id="listWhere">
+        WHERE p.deleted_at IS NULL
+        <if test="blogId != null">AND p.blog_id = #{blogId}</if>
+        <if test="categoryId != null">AND p.category_id = #{categoryId}</if>
+        <if test="publicOnly">AND p.status = 'PUBLISHED' AND p.visibility = 'PUBLIC'</if>
+        <if test="!publicOnly">AND p.status = 'PUBLISHED'</if>
+        <if test="tag != null and tag != ''">
+            AND EXISTS (
+                SELECT 1 FROM blog_post_tag pt JOIN blog_tag t ON t.id = pt.tag_id
+                WHERE pt.post_id = p.id AND t.name = #{tag}
+            )
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND MATCH(p.title, p.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE)
+        </if>
+    </sql>
+
+    <select id="findList" resultType="com.base.app.dto.post.PostListItemResponse">
+        SELECT p.id, p.blog_id AS blogId, b.blog_name AS blogName, p.title,
+               LEFT(
+                   REGEXP_REPLACE(
+                       REGEXP_REPLACE(
+                           REGEXP_REPLACE(p.content, '&lt;[^&gt;]+&gt;', ''),
+                           '[#*`_~]', ''
+                       ),
+                       '[[:space:]]+', ' '
+                   ), 150
+               ) AS summary,
+               p.thumbnail_url AS thumbnailUrl, c.name AS categoryName,
+               p.view_count AS viewCount, p.like_count AS likeCount, p.comment_count AS commentCount,
+               p.published_at AS publishedAt
+        FROM blog_post p
+        JOIN blog_blog b ON b.id = p.blog_id
+        LEFT JOIN blog_category c ON c.id = p.category_id
+        <include refid="listWhere"/>
+        ORDER BY p.published_at DESC
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countList" resultType="long">
+        SELECT COUNT(1)
+        FROM blog_post p
+        <include refid="listWhere"/>
+    </select>
+
+    <update id="update" parameterType="map">
+        UPDATE blog_post
+        SET title = #{title},
+            content = #{content},
+            thumbnail_url = #{thumbnailUrl},
+            category_id = #{categoryId},
+            visibility = #{visibility},
+            status = #{status},
+            published_at = CASE WHEN published_at IS NULL AND #{status} = 'PUBLISHED' THEN NOW() ELSE published_at END
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="softDelete">
+        UPDATE blog_post SET deleted_at = NOW() WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE blog_post SET view_count = view_count + 1 WHERE id = #{id}
+    </update>
+
+    <update id="adjustLikeCount">
+        UPDATE blog_post SET like_count = GREATEST(0, like_count + #{delta}) WHERE id = #{id}
+    </update>
+
+    <update id="adjustCommentCount">
+        UPDATE blog_post SET comment_count = GREATEST(0, comment_count + #{delta}) WHERE id = #{id}
+    </update>
+
+    <resultMap id="adminPostSummaryMap" type="com.base.app.dto.admin.AdminPostSummary">
+        <id property="id" column="id"/>
+        <result property="blogId" column="blog_id"/>
+        <result property="blogName" column="blog_name"/>
+        <result property="authorNickname" column="author_nickname"/>
+        <result property="title" column="title"/>
+        <result property="visibility" column="visibility"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findAllForAdmin" resultMap="adminPostSummaryMap">
+        SELECT p.id, p.blog_id, b.blog_name, u.nickname AS author_nickname,
+               p.title, p.visibility, p.status, p.created_at
+        FROM blog_post p
+        JOIN blog_blog b ON b.id = p.blog_id
+        JOIN blog_user u ON u.id = b.user_id
+        WHERE p.deleted_at IS NULL
+        ORDER BY p.created_at DESC
+        LIMIT 200
+    </select>
+
+    <select id="findOwnerUserId" resultType="java.lang.Long">
+        SELECT b.user_id
+        FROM blog_post p JOIN blog_blog b ON b.id = p.blog_id
+        WHERE p.id = #{id} AND p.deleted_at IS NULL
+    </select>
+
+</mapper>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.CommentMapper">
+
+    <!-- 다중 @Param 스칼라 인자라 생성키 바인딩 대상 파라미터를 특정할 수 없음 -> useGeneratedKeys 미사용 (생성된 id 는 호출부에서 사용하지 않음) -->
+    <insert id="insert">
+        INSERT INTO blog_comment (post_id, user_id, parent_id, content, is_secret)
+        VALUES (#{postId}, #{userId}, #{parentId}, #{content}, #{secret})
+    </insert>
+
+    <resultMap id="commentResultMap" type="com.base.app.dto.comment.CommentResponse">
+        <id property="id" column="id"/>
+        <result property="postId" column="post_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="authorUserId" column="user_id"/>
+        <result property="authorNickname" column="nickname"/>
+        <result property="authorProfileImageUrl" column="profile_image_url"/>
+        <result property="content" column="content"/>
+        <result property="secret" column="is_secret"/>
+        <result property="deleted" column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <select id="findByPostId" resultMap="commentResultMap">
+        SELECT c.id, c.post_id, c.parent_id, c.user_id, u.nickname, u.profile_image_url,
+               CASE WHEN c.deleted_at IS NOT NULL THEN NULL ELSE c.content END AS content,
+               c.is_secret,
+               (c.deleted_at IS NOT NULL) AS is_deleted,
+               c.created_at
+        FROM blog_comment c
+        JOIN blog_user u ON u.id = c.user_id
+        WHERE c.post_id = #{postId}
+        ORDER BY COALESCE(c.parent_id, c.id) ASC, c.id ASC
+    </select>
+
+    <select id="findAuthorUserId" resultType="java.lang.Long">
+        SELECT user_id FROM blog_comment WHERE id = #{id} AND deleted_at IS NULL
+    </select>
+
+    <select id="findParentId" resultType="java.lang.Long">
+        SELECT parent_id FROM blog_comment WHERE id = #{id} AND deleted_at IS NULL
+    </select>
+
+    <update id="softDelete">
+        UPDATE blog_comment SET deleted_at = NOW() WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
+</mapper>

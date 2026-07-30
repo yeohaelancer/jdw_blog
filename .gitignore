@@ -1,0 +1,11 @@
+# 루트 레벨 공통 무시 규칙 (backend/, frontend/ 는 각자 .gitignore 보유)
+.env
+*.log
+
+### OS ###
+.DS_Store
+Thumbs.db
+
+### IDE ###
+.idea/
+.vscode/

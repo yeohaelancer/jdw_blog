@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.app.mapper.BlogMapper">
+
+    <resultMap id="blogResultMap" type="com.base.app.dto.BlogDto">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="blogName" column="blog_name"/>
+        <result property="blogUrlSlug" column="blog_url_slug"/>
+        <result property="intro" column="intro"/>
+        <result property="profileImageUrl" column="profile_image_url"/>
+        <result property="coverImageUrl" column="cover_image_url"/>
+        <result property="skinTheme" column="skin_theme"/>
+        <result property="totalVisitorCount" column="total_visitor_count"/>
+    </resultMap>
+
+    <select id="findByUserId" resultMap="blogResultMap">
+        SELECT id, user_id, blog_name, blog_url_slug, intro, profile_image_url, cover_image_url, skin_theme, total_visitor_count
+        FROM blog_blog
+        WHERE user_id = #{userId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="findById" resultMap="blogResultMap">
+        SELECT id, user_id, blog_name, blog_url_slug, intro, profile_image_url, cover_image_url, skin_theme, total_visitor_count
+        FROM blog_blog
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+    </select>
+
+    <insert id="insert" parameterType="com.base.app.dto.BlogDto" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO blog_blog (user_id, blog_name, blog_url_slug, skin_theme)
+        VALUES (#{userId}, #{blogName}, #{blogUrlSlug}, 'basic')
+    </insert>
+
+</mapper>

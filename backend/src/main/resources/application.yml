@@ -1,0 +1,69 @@
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: base-backend
+
+  # ===================================================================
+  # DB 연결 정보는 .env 파일(환경변수)에서 주입받습니다.
+  # backend/.env.example 을 참고하여 backend/.env 파일을 생성하세요.
+  # DB_DRIVER / DB_URL / DB_USERNAME / DB_PASSWORD 4개 값만 바꾸면
+  # Oracle, MSSQL, MySQL, PostgreSQL 어떤 DB로도 전환 가능합니다.
+  # ===================================================================
+  datasource:
+    driver-class-name: ${DB_DRIVER}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      pool-name: base-hikari-pool
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: 30000
+
+  jackson:
+    default-property-inclusion: non_null
+    time-zone: Asia/Seoul
+
+# ===================================================================
+# MyBatis 설정
+# ===================================================================
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.base.app.dto
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 500
+    default-statement-timeout: 30
+    call-setters-on-nulls: true
+    jdbc-type-for-null: NULL
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+
+# ===================================================================
+# Swagger (springdoc-openapi)
+# 접속: http://localhost:8080/swagger-ui.html
+# ===================================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+logging:
+  config: classpath:log4j2.xml
+
+# CORS - 프론트엔드 개발 서버 주소 (nginx 사용 시 불필요, 로컬 직접 접속 개발용)
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  jwt:
+    secret: ${JWT_SECRET:change-this-secret-in-production-min-32-bytes-long!!}
+    access-token-exp-minutes: ${JWT_ACCESS_EXP_MIN:30}
+    refresh-token-exp-days: ${JWT_REFRESH_EXP_DAYS:7}
