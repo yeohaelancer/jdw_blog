@@ -16,6 +16,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const post = ref(null)
+const related = ref([])
 const comments = ref([])
 const errorMessage = ref('')
 const commentContent = ref('')
@@ -32,6 +33,22 @@ async function onDeletePost() {
   router.push(`/blogs/${authStore.blogId}`)
 }
 
+function onBack() {
+  if (post.value) {
+    router.push(`/blogs/${post.value.blogId}`)
+  } else {
+    router.push('/explore')
+  }
+}
+
+async function loadRelated() {
+  const res = await postApi.fetchPosts({ blogId: post.value.blogId, size: 12 })
+  related.value = res.data.items
+    .filter((p) => p.id !== post.value.id)
+    .sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0))
+    .slice(0, 3)
+}
+
 async function load() {
   errorMessage.value = ''
   try {
@@ -39,6 +56,7 @@ async function load() {
     post.value = res.data
     const commentsRes = await commentApi.fetchComments(postId())
     comments.value = commentsRes.data
+    await loadRelated()
   } catch (e) {
     errorMessage.value = e?.response?.data?.message || '게시글을 불러올 수 없습니다.'
   }
@@ -106,8 +124,10 @@ onMounted(load)
     <WatercolorCard class="error-card">{{ errorMessage }}</WatercolorCard>
   </div>
   <div class="post-detail" v-else-if="post">
+    <button type="button" class="back-link" @click="onBack">← 목록으로</button>
+
     <div class="title-row">
-      <TagChip v-if="post.categoryName" :label="post.categoryName" />
+      <p class="category-tag-label" v-if="post.categoryName">{{ post.categoryName }} · #{{ post.tags?.[0] || post.categoryName }}</p>
       <div v-if="isOwner()" class="owner-actions">
         <RouterLink :to="`/posts/${post.id}/edit`" class="link-btn">수정</RouterLink>
         <button type="button" class="link-btn danger" @click="onDeletePost">삭제</button>
@@ -120,7 +140,13 @@ onMounted(load)
       <span>{{ new Date(post.publishedAt || post.createdAt).toLocaleDateString() }}</span>
       <span class="dot">·</span>
       <span>조회 {{ post.viewCount }}</span>
+      <span class="dot">·</span>
+      <span>댓글 {{ post.commentCount }}</span>
+      <span class="dot">·</span>
+      <span>좋아요 {{ post.likeCount }}</span>
     </div>
+
+    <div v-if="post.thumbnailUrl" class="thumbnail" :style="{ backgroundImage: `url(${post.thumbnailUrl})` }" />
 
     <WatercolorCard class="content-card">
       <!-- eslint-disable-next-line vue/no-v-html -->
@@ -134,6 +160,18 @@ onMounted(load)
     <div class="like-row">
       <LikeHeart :liked="post.likedByMe" :count="post.likeCount" @toggle="onToggleLike" />
     </div>
+
+    <section class="related" v-if="related.length">
+      <h3>다른 인기글</h3>
+      <div class="related-grid">
+        <RouterLink v-for="rl in related" :key="rl.id" :to="`/posts/${rl.id}`" class="related-card">
+          <div class="related-thumb" :style="rl.thumbnailUrl ? { backgroundImage: `url(${rl.thumbnailUrl})` } : null">
+            <div v-if="!rl.thumbnailUrl" class="related-placeholder" />
+          </div>
+          <p class="related-title">{{ rl.title }}</p>
+        </RouterLink>
+      </div>
+    </section>
 
     <section class="comments">
       <h2>댓글 {{ post.commentCount }}</h2>
@@ -164,16 +202,38 @@ onMounted(load)
 </template>
 
 <style scoped>
+.back-link {
+  background: none;
+  border: none;
+  color: var(--color-ink-soft);
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 0;
+}
+.thumbnail {
+  height: 360px;
+  border-radius: 20px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 32px;
+}
 .post-detail {
   max-width: 760px;
   margin: 0 auto;
-  padding: 32px 16px 64px;
+  padding: 48px 40px 100px;
 }
 .title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+.category-tag-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin: 0;
 }
 .owner-actions {
   display: flex;
@@ -191,12 +251,20 @@ onMounted(load)
 .owner-actions .link-btn.danger { color: var(--color-error); }
 .title {
   font-size: 32px;
-  margin: 12px 0;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin: 16px 0;
 }
 .author {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
   color: var(--color-ink-soft);
-  font-size: 14px;
-  margin-bottom: 24px;
+  font-size: 13px;
+  padding-bottom: 28px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--color-border);
 }
 .dot { margin: 0 6px; }
 .content-card { margin-bottom: 16px; }
@@ -248,6 +316,47 @@ onMounted(load)
 }
 .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
 .like-row { display: flex; justify-content: center; margin: 32px 0; }
+.related {
+  border-top: 1px solid var(--color-border);
+  padding-top: 32px;
+  margin-bottom: 32px;
+}
+.related h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.related-card {
+  display: block;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+}
+.related-thumb {
+  height: 100px;
+  background-size: cover;
+  background-position: center;
+}
+.related-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--color-placeholder-bg);
+}
+.related-title {
+  padding: 12px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+}
 .comments h2 { font-size: 20px; }
 .empty { color: var(--color-ink-soft); }
 .comment-form { margin-top: 24px; }

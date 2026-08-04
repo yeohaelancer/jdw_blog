@@ -1,39 +1,43 @@
 :root {
-  /* 원목 데스크 위에 놓인 신문지/매거진 콘셉트 */
-  --color-bg: #4A3220;
-  --color-bg-wash:
-    repeating-linear-gradient(95deg, rgba(0, 0, 0, 0.06) 0px, rgba(0, 0, 0, 0.06) 1px, transparent 1px, transparent 7px),
-    repeating-linear-gradient(95deg, rgba(255, 255, 255, 0.025) 0px, rgba(255, 255, 255, 0.025) 1px, transparent 1px, transparent 15px),
-    radial-gradient(ellipse at 50% 40%, rgba(255, 255, 255, 0.07) 0%, rgba(0, 0, 0, 0.28) 100%),
-    linear-gradient(160deg, #8B5E34 0%, #6B4423 45%, #462D1B 100%);
-  --color-primary: #3E6FA6;
-  --color-primary-dark: #2C5480;
-  --color-secondary: #D97757;
+  /* 매거진 모던 리디자인 - 디자인 핸드오프 토큰 (Light) */
+  --color-bg: oklch(97% 0.006 240);
+  --color-surface: oklch(99.5% 0.002 240);
+  --color-ink: oklch(22% 0.02 250);
+  --color-ink-soft: oklch(50% 0.02 250);
+  --color-border: oklch(91% 0.008 250);
+  --color-primary: oklch(55% 0.16 240);
+  --color-primary-dark: oklch(45% 0.16 240);
+  --color-secondary: #E8A23D;
+  --color-accent-soft: oklch(93% 0.04 240);
+  --color-accent-soft-text: oklch(40% 0.13 240);
   --color-accent-yellow: #E8B84B;
-  --color-ink: #2B2321;
-  --color-ink-soft: #6B5D4F;
   --color-error: #C0392B;
-  --color-surface: #F8F0DE;
-  --color-border: #2B2321;
+  --color-placeholder-bg: oklch(93% 0.008 240);
+  --color-placeholder-text: oklch(55% 0.02 250);
+  --toggle-track-off: oklch(85% 0.01 250);
+  --shadow-card: 0 1px 3px rgba(20, 30, 50, 0.06);
 
-  --font-heading: 'Noto Serif KR', 'Gaegu', system-ui, serif;
-  --font-body: 'Noto Sans KR', -apple-system, "Malgun Gothic", "맑은 고딕", sans-serif;
+  --font-heading: 'Pretendard', -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
+  --font-body: 'Pretendard', -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
 
-  --radius: 12px;
-  --shadow-card: 3px 3px 0 rgba(43, 35, 33, 0.28);
+  --radius: 16px;
 }
 
-/*
-  다크모드는 명시적 토글(:root[data-theme="dark"])이 준비되기 전까지는 자동 적용하지 않는다.
-  OS가 다크모드여도 원목+신문지 테마를 그대로 유지해 콘텐츠 대비를 보장한다.
-*/
+/* 매거진 모던 리디자인 - 디자인 핸드오프 토큰 (Dark) */
 :root[data-theme='dark'] {
-  --color-bg: #1E2126;
-  --color-surface: #2A2E35;
-  --color-ink: #F2F0EA;
-  --color-ink-soft: #C7C5BF;
-  --color-border: #F2F0EA;
-  --shadow-card: 3px 3px 0 rgba(0, 0, 0, 0.35);
+  --color-bg: oklch(19% 0.014 250);
+  --color-surface: oklch(24% 0.016 250);
+  --color-ink: oklch(93% 0.01 250);
+  --color-ink-soft: oklch(66% 0.02 250);
+  --color-border: oklch(33% 0.02 250);
+  --color-primary: oklch(72% 0.14 240);
+  --color-primary-dark: oklch(72% 0.14 240);
+  --color-accent-soft: oklch(32% 0.06 240);
+  --color-accent-soft-text: oklch(85% 0.06 240);
+  --color-placeholder-bg: oklch(28% 0.012 250);
+  --color-placeholder-text: oklch(60% 0.02 250);
+  --toggle-track-off: oklch(38% 0.02 250);
+  --shadow-card: none;
 }
 
 * {
@@ -44,10 +48,9 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--color-ink);
-  background-color: var(--color-bg);
-  background-image: var(--color-bg-wash);
-  background-attachment: fixed;
+  background: var(--color-bg);
   min-height: 100vh;
+  transition: background 0.2s, color 0.2s;
 }
 
 h1, h2, h3, h4 {

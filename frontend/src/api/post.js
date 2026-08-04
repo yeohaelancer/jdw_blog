@@ -10,6 +10,8 @@ export const updatePost = (id, payload) => http.put(`/posts/${id}`, payload)
 
 export const deletePost = (id) => http.delete(`/posts/${id}`)
 
+export const updateThumbnail = (id, thumbnailUrl) => http.patch(`/posts/${id}/thumbnail`, { thumbnailUrl })
+
 export const toggleLike = (postId) => http.post(`/posts/${postId}/like`)
 
 export const fetchCategories = (blogId) => http.get(`/blogs/${blogId}/categories`)

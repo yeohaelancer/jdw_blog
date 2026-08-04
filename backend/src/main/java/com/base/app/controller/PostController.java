@@ -5,6 +5,7 @@ import com.base.app.dto.PageResponse;
 import com.base.app.dto.post.PostCreateRequest;
 import com.base.app.dto.post.PostDetailResponse;
 import com.base.app.dto.post.PostListItemResponse;
+import com.base.app.dto.post.PostThumbnailRequest;
 import com.base.app.dto.post.PostUpdateRequest;
 import com.base.app.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,6 +54,13 @@ public class PostController {
     public ApiResponse<Void> update(@PathVariable Long id, @Valid @RequestBody PostUpdateRequest request) {
         postService.update(id, request);
         return ApiResponse.success("게시글이 수정되었습니다.", null);
+    }
+
+    @Operation(summary = "게시글 썸네일만 변경")
+    @PatchMapping("/{id}/thumbnail")
+    public ApiResponse<Void> updateThumbnail(@PathVariable Long id, @RequestBody PostThumbnailRequest request) {
+        postService.updateThumbnail(id, request.getThumbnailUrl());
+        return ApiResponse.success("썸네일이 변경되었습니다.", null);
     }
 
     @Operation(summary = "게시글 삭제")

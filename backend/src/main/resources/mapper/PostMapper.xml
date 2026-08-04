@@ -103,6 +103,13 @@
           AND deleted_at IS NULL
     </update>
 
+    <update id="updateThumbnail">
+        UPDATE blog_post
+        SET thumbnail_url = #{thumbnailUrl}
+        WHERE id = #{id}
+          AND deleted_at IS NULL
+    </update>
+
     <update id="softDelete">
         UPDATE blog_post SET deleted_at = NOW() WHERE id = #{id} AND deleted_at IS NULL
     </update>

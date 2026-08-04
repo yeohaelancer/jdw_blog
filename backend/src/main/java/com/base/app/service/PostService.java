@@ -125,6 +125,13 @@ public class PostService {
     }
 
     @Transactional
+    public void updateThumbnail(Long id, String thumbnailUrl) {
+        Long userId = AuthContext.requireUserId();
+        requireOwner(id, userId);
+        postMapper.updateThumbnail(id, thumbnailUrl);
+    }
+
+    @Transactional
     public void delete(Long id) {
         Long userId = AuthContext.requireUserId();
         requireOwner(id, userId);

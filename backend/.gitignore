@@ -8,6 +8,7 @@ build/
 ### 환경설정 ###
 .env
 logs/
+uploads/
 
 ### IDE ###
 .idea

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+*{box-sizing:border-box;}
+body{margin:0;}
+</style>
+</helmet>
+<div style="min-height:100vh;background:{{bgPage}};color:{{textPrimary}};font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Malgun Gothic',sans-serif;transition:background .2s,color .2s">
+
+  <div style="position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:{{bgSurface}};border-bottom:1px solid {{border}}">
+    <div style="font-weight:800;font-size:19px;letter-spacing:-0.02em;cursor:pointer" onClick="{{goBack}}">물빛 다이어리</div>
+    <div style="display:flex;align-items:center;gap:28px">
+      <div style="display:flex;gap:22px;font-size:14px;color:{{textMuted}};font-weight:500">
+        <span style="cursor:pointer" onClick="{{goBack}}">전체 글</span>
+        <span style="cursor:pointer">인기글</span>
+        <span style="cursor:pointer">태그</span>
+      </div>
+      <button onClick="{{toggleDark}}" style="width:44px;height:24px;border-radius:12px;background:{{toggleTrackBg}};position:relative;border:none;cursor:pointer;padding:0;flex-shrink:0">
+        <div style="width:18px;height:18px;border-radius:9999px;background:#fff;position:absolute;top:3px;left:{{toggleKnobLeft}};transition:left .2s"></div>
+      </button>
+      <button style="background:{{accent}};color:#fff;border:none;padding:10px 20px;border-radius:9999px;font-size:14px;font-weight:600;cursor:pointer">글쓰기</button>
+    </div>
+  </div>
+
+  <sc-if value="{{isList}}" hint-placeholder-val="{{true}}">
+    <div style="padding:56px 40px 36px;text-align:center">
+      <h1 style="font-size:38px;font-weight:800;letter-spacing:-0.02em;margin:0 0 12px">여해의 블로그</h1>
+      <p style="font-size:16px;color:{{textMuted}};margin:0">전국 낚시 포인트를 발로 뛰며 검증하고 기록합니다</p>
+    </div>
+
+    <div style="max-width:1160px;margin:0 auto;padding:0 40px 48px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+        <div style="width:4px;height:20px;background:{{accent}};border-radius:2px"></div>
+        <h2 style="font-size:20px;font-weight:700;margin:0">인기 글</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+        <sc-for list="{{popular}}" as="pp" hint-placeholder-count="3">
+          <div onClick="{{pp.onSelect}}" style="cursor:pointer;background:{{bgSurface}};border:1px solid {{border}};border-radius:16px;overflow:hidden;box-shadow:{{cardShadow}}">
+            <div style="height:140px;background:{{placeholderBg}};position:relative;display:flex;align-items:center;justify-content:center">
+              <span style="font-family:monospace;font-size:11px;color:{{placeholderText}}">{{pp.region}} 사진</span>
+              <div style="position:absolute;top:10px;left:10px;width:26px;height:26px;border-radius:8px;background:{{accent}};color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{pp.rank}}</div>
+            </div>
+            <div style="padding:16px">
+              <div style="font-size:12px;color:{{accent}};font-weight:600;margin-bottom:6px">#{{pp.tag}}</div>
+              <div style="font-size:15px;font-weight:700;line-height:1.4;margin-bottom:8px">{{pp.title}}</div>
+              <div style="font-size:12px;color:{{textMuted}}">조회 {{pp.views}} · 좋아요 {{pp.likes}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="max-width:1160px;margin:0 auto;padding:0 40px 80px;display:grid;grid-template-columns:220px 1fr;gap:40px">
+      <aside>
+        <div style="margin-bottom:32px">
+          <h3 style="font-size:13px;font-weight:700;color:{{textMuted}};text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px">카테고리</h3>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <sc-for list="{{categories}}" as="cat" hint-placeholder-count="6">
+              <div style="display:flex;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:14px;cursor:pointer">
+                <span>{{cat.name}}</span><span style="color:{{textMuted}}">{{cat.count}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <h3 style="font-size:13px;font-weight:700;color:{{textMuted}};text-transform:uppercase;letter-spacing:.06em;margin:0 0 12px">태그</h3>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{tags}}" as="tg" hint-placeholder-count="9">
+              <span style="padding:6px 12px;border-radius:9999px;background:{{accentSoft}};color:{{accentSoftText}};font-size:13px;font-weight:600;cursor:pointer">#{{tg}}</span>
+            </sc-for>
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <div onClick="{{featured.onSelect}}" style="cursor:pointer;display:grid;grid-template-columns:1.1fr 1fr;gap:32px;padding-bottom:32px;margin-bottom:32px;border-bottom:1px solid {{border}}">
+          <div style="height:280px;border-radius:20px;background:{{placeholderBg}};display:flex;align-items:center;justify-content:center">
+            <span style="font-family:monospace;font-size:12px;color:{{placeholderText}}">{{featured.region}} 사진</span>
+          </div>
+          <div style="display:flex;flex-direction:column;justify-content:center">
+            <div style="font-size:13px;font-weight:600;color:{{accent}};margin-bottom:10px">낚시 · #{{featured.tag}}</div>
+            <div style="font-size:26px;font-weight:800;letter-spacing:-0.01em;line-height:1.35;margin-bottom:14px">{{featured.title}}</div>
+            <div style="font-size:14px;color:{{textMuted}};line-height:1.6;margin-bottom:16px">{{featured.excerpt}}</div>
+            <div style="font-size:13px;color:{{textMuted}}">조회 {{featured.views}} · 댓글 {{featured.comments}} · 좋아요 {{featured.likes}}</div>
+          </div>
+        </div>
+
+        <sc-for list="{{restPosts}}" as="rp" hint-placeholder-count="8">
+          <div onClick="{{rp.onSelect}}" style="cursor:pointer;display:grid;grid-template-columns:120px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid {{border}}">
+            <div style="width:120px;height:90px;border-radius:12px;background:{{placeholderBg}};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <span style="font-family:monospace;font-size:9px;color:{{placeholderText}}">{{rp.region}}</span>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:{{accent}};margin-bottom:4px">#{{rp.tag}}</div>
+              <div style="font-size:17px;font-weight:700;margin-bottom:6px;line-height:1.4">{{rp.title}}</div>
+              <div style="font-size:13px;color:{{textMuted}};margin-bottom:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{rp.excerpt}}</div>
+              <div style="font-size:12px;color:{{textMuted}}">조회 {{rp.views}} · 댓글 {{rp.comments}} · 좋아요 {{rp.likes}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </main>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDetail}}" hint-placeholder-val="{{false}}">
+    <div style="max-width:760px;margin:0 auto;padding:48px 40px 100px">
+      <button onClick="{{goBack}}" style="background:none;border:none;color:{{textMuted}};font-size:14px;cursor:pointer;margin-bottom:24px;padding:0">← 목록으로</button>
+      <div style="font-size:13px;font-weight:600;color:{{accent}};margin-bottom:10px">낚시 · #{{selected.tag}}</div>
+      <h1 style="font-size:32px;font-weight:800;line-height:1.35;letter-spacing:-0.01em;margin:0 0 16px">{{selected.title}}</h1>
+      <div style="display:flex;gap:16px;font-size:13px;color:{{textMuted}};margin-bottom:28px;padding-bottom:28px;border-bottom:1px solid {{border}}">
+        <span>{{selected.date}}</span><span>조회 {{selected.views}}</span><span>댓글 {{selected.comments}}</span><span>좋아요 {{selected.likes}}</span>
+      </div>
+      <div style="height:360px;border-radius:20px;background:{{placeholderBg}};display:flex;align-items:center;justify-content:center;margin-bottom:32px">
+        <span style="font-family:monospace;font-size:13px;color:{{placeholderText}}">{{selected.region}} 대표 사진</span>
+      </div>
+      <p style="font-size:16px;line-height:1.8;margin:0 0 24px">{{selected.intro}}</p>
+      <h3 style="font-size:18px;font-weight:700;margin:0 0 12px">포인트 선정 기준</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">
+        <sc-for list="{{criteria}}" as="cr" hint-placeholder-count="4">
+          <div style="display:flex;gap:8px;align-items:center;padding:12px 14px;background:{{bgSurface}};border:1px solid {{border}};border-radius:10px;font-size:14px">
+            <span style="color:{{accent}};font-weight:700">✓</span>{{cr}}
+          </div>
+        </sc-for>
+      </div>
+      <h3 style="font-size:18px;font-weight:700;margin:0 0 12px">{{selected.region}} 검증 포인트 10곳</h3>
+      <div style="display:flex;flex-direction:column;gap:2px;margin-bottom:28px">
+        <sc-for list="{{selected.spots}}" as="sp" hint-placeholder-count="10">
+          <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid {{border}}">
+            <div style="width:28px;height:28px;border-radius:8px;background:{{accentSoft}};color:{{accentSoftText}};font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">{{sp.index}}</div>
+            <div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:2px">{{sp.name}}</div>
+              <div style="font-size:13px;color:{{textMuted}}">{{sp.note}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:16px;line-height:1.8;margin:0 0 32px">{{selected.closing}}</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:48px">
+        <sc-for list="{{selected.tags}}" as="st" hint-placeholder-count="3">
+          <span style="padding:6px 12px;border-radius:9999px;background:{{accentSoft}};color:{{accentSoftText}};font-size:13px;font-weight:600">#{{st}}</span>
+        </sc-for>
+      </div>
+      <div style="border-top:1px solid {{border}};padding-top:32px">
+        <h3 style="font-size:18px;font-weight:700;margin:0 0 16px">다른 인기글</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <sc-for list="{{related}}" as="rl" hint-placeholder-count="3">
+            <div onClick="{{rl.onSelect}}" style="cursor:pointer;background:{{bgSurface}};border:1px solid {{border}};border-radius:14px;overflow:hidden">
+              <div style="height:100px;background:{{placeholderBg}};display:flex;align-items:center;justify-content:center">
+                <span style="font-family:monospace;font-size:10px;color:{{placeholderText}}">{{rl.region}}</span>
+              </div>
+              <div style="padding:12px">
+                <div style="font-size:13px;font-weight:700;line-height:1.4">{{rl.title}}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LIGHT = {
+  bgPage: 'oklch(97% 0.006 240)',
+  bgSurface: 'oklch(99.5% 0.002 240)',
+  textPrimary: 'oklch(22% 0.02 250)',
+  textMuted: 'oklch(50% 0.02 250)',
+  border: 'oklch(91% 0.008 250)',
+  accent: 'oklch(55% 0.16 240)',
+  accentSoft: 'oklch(93% 0.04 240)',
+  accentSoftText: 'oklch(40% 0.13 240)',
+  placeholderBg: 'repeating-linear-gradient(135deg, oklch(94% 0.01 240), oklch(94% 0.01 240) 10px, oklch(91% 0.012 240) 10px, oklch(91% 0.012 240) 20px)',
+  placeholderText: 'oklch(55% 0.02 250)',
+  toggleOff: 'oklch(85% 0.01 250)',
+  cardShadow: '0 1px 3px rgba(20,30,50,0.06)'
+};
+const DARK = {
+  bgPage: 'oklch(19% 0.014 250)',
+  bgSurface: 'oklch(24% 0.016 250)',
+  textPrimary: 'oklch(93% 0.01 250)',
+  textMuted: 'oklch(66% 0.02 250)',
+  border: 'oklch(33% 0.02 250)',
+  accent: 'oklch(72% 0.14 240)',
+  accentSoft: 'oklch(32% 0.06 240)',
+  accentSoftText: 'oklch(85% 0.06 240)',
+  placeholderBg: 'repeating-linear-gradient(135deg, oklch(27% 0.015 250), oklch(27% 0.015 250) 10px, oklch(24% 0.016 250) 10px, oklch(24% 0.016 250) 20px)',
+  placeholderText: 'oklch(60% 0.02 250)',
+  toggleOff: 'oklch(38% 0.02 250)',
+  cardShadow: 'none'
+};
+
+const POSTS = [
+  { id: 1, region: '제주도', tag: '제주도', date: '2026.05.02', title: '제주도 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '제주도 낚시 가려고 검색만 몇 시간째인 분들을 위해, 접근성과 안전을 함께 확인한 포인트만 추렸습니다.', views: 128, likes: 6, comments: 3 },
+  { id: 2, region: '속초·고성권', tag: '동해', date: '2026.05.09', title: '속초·고성권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '강원 최북단, 속초·고성 가려고 검색만 몇 시간째인 분들을 위한 실측 포인트 정리입니다.', views: 96, likes: 4, comments: 1 },
+  { id: 3, region: '강릉·양양권', tag: '동해', date: '2026.05.14', title: '강릉·양양권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '강릉·양양 가려고 검색만 몇 시간째인 분들을 위해 직접 다녀온 곳만 담았습니다.', views: 142, likes: 9, comments: 4 },
+  { id: 4, region: '삼척·동해권', tag: '동해', date: '2026.05.20', title: '삼척·동해권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '강원 동해안, 겨울 감성돔 시즌까지 고려한 포인트만 골라 정리했습니다.', views: 88, likes: 3, comments: 2 },
+  { id: 5, region: '포항·울산·경주권', tag: '동해', date: '2026.05.27', title: '포항·울산·경주권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '동해남부권, 어디부터 가야 할지 고민이라면 이 리스트부터 확인하세요.', views: 156, likes: 11, comments: 5 },
+  { id: 6, region: '부산·남해권', tag: '남해', date: '2026.06.03', title: '부산·남해권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '부산·남해 가려고 검색만 몇 시간째인 분들을 위한 검증 포인트 모음입니다.', views: 173, likes: 14, comments: 7 },
+  { id: 7, region: '거제·통영권', tag: '남해', date: '2026.06.10', title: '거제·통영권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '거제·통영 가려고 검색만 몇 시간째인 분들을 위한 실측 정리입니다.', views: 121, likes: 7, comments: 3 },
+  { id: 8, region: '해남·여수권', tag: '남해', date: '2026.06.17', title: '해남·여수권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '남해안 최남단, 어디부터 가야 할지 고민이라면 여기서 시작하세요.', views: 99, likes: 5, comments: 2 },
+  { id: 9, region: '변산·군산·목포권', tag: '서해', date: '2026.06.24', title: '변산·군산·목포권, 검증된 낚시 포인트 10곳만 정리했습니다', excerpt: '서해 갯벌권, 물때 확인이 특히 중요한 지역의 포인트를 정리했습니다.', views: 134, likes: 8, comments: 4 }
+];
+
+const NOTES = [
+  '방파제 진입로 있음 · 초보자 추천',
+  '갯바위 지형 · 안전장비 필수',
+  '주차 공간 넉넉 · 가족 단위 적합',
+  '조황 안정적 · 야간 조업 가능',
+  '수심 변화 큼 · 경험자 권장'
+];
+
+const CRITERIA = ['접근성 좋은 주차·진입로', '안전 펜스·구조 확인', '시즌별 어종 정보', '실측 조황 데이터 반영'];
+
+function buildBody(region) {
+  return {
+    intro: `${region} 낚시 가려고 검색만 몇 시간째인 분들을 위해, 실제로 다녀온 곳 중심으로 접근성과 안전, 조황을 함께 확인한 포인트만 추렸습니다.`,
+    spots: Array.from({ length: 10 }, (_, i) => ({
+      index: i + 1,
+      name: `${region} 포인트 ${i + 1}`,
+      note: NOTES[i % NOTES.length]
+    })),
+    closing: '현장 상황은 계절과 물때에 따라 달라질 수 있으니, 출조 전 최신 정보를 한 번 더 확인하시길 권장합니다.'
+  };
+}
+
+class Component extends DCLogic {
+  state = { view: 'list', selectedId: 1, darkMode: false };
+
+  selectPost = (id) => { this.setState({ view: 'detail', selectedId: id }); window.scrollTo(0, 0); };
+  goBack = () => { this.setState({ view: 'list' }); window.scrollTo(0, 0); };
+  toggleDark = () => this.setState(s => ({ darkMode: !s.darkMode }));
+
+  renderVals() {
+    const T = this.state.darkMode ? DARK : LIGHT;
+    const withSelect = (p) => ({ ...p, onSelect: () => this.selectPost(p.id) });
+
+    const featured = withSelect(POSTS[0]);
+    const restPosts = POSTS.slice(1).map(withSelect);
+    const popular = [...POSTS].sort((a, b) => b.views - a.views).slice(0, 3).map((p, i) => ({ ...withSelect(p), rank: i + 1 }));
+
+    const selectedRaw = POSTS.find(p => p.id === this.state.selectedId) || POSTS[0];
+    const body = buildBody(selectedRaw.region);
+    const selected = { ...selectedRaw, ...body, tags: [selectedRaw.tag, '포인트', '초보'] };
+    const related = POSTS.filter(p => p.id !== selectedRaw.id).slice(0, 3).map(withSelect);
+
+    return {
+      ...T,
+      isList: this.state.view === 'list',
+      isDetail: this.state.view === 'detail',
+      toggleDark: this.toggleDark,
+      goBack: this.goBack,
+      toggleTrackBg: this.state.darkMode ? T.accent : T.toggleOff,
+      toggleKnobLeft: this.state.darkMode ? '23px' : '3px',
+      featured, restPosts, popular, selected, related,
+      criteria: CRITERIA,
+      categories: [
+        { name: '전체', count: 17 }, { name: '낚시', count: 17 }, { name: '골프', count: 0 },
+        { name: '여행', count: 0 }, { name: '캠핑', count: 0 }, { name: '레시피', count: 0 }, { name: '기타', count: 0 }
+      ],
+      tags: ['동해', '서해', '남해', '초보', '장비', '포인트', '방파제', '갯바위', '제주도']
+    };
+  }
+}
+
+</script>
+</body>
+</html>

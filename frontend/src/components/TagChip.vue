@@ -22,13 +22,13 @@ defineEmits(['click'])
 <style scoped>
 .tag-chip {
   display: inline-block;
-  background: var(--color-accent-yellow);
-  color: var(--color-ink);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-soft-text);
   font-family: var(--font-heading);
-  font-size: 14px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 9999px;
 }
 .clickable {
   cursor: pointer;

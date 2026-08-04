@@ -33,6 +33,8 @@ public interface PostMapper {
 
     int update(Map<String, Object> post);
 
+    int updateThumbnail(@Param("id") Long id, @Param("thumbnailUrl") String thumbnailUrl);
+
     int softDelete(@Param("id") Long id);
 
     int incrementViewCount(@Param("id") Long id);

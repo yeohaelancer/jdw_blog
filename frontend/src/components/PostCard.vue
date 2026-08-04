@@ -9,10 +9,8 @@ defineProps({
 
 <template>
   <div class="post-card">
-    <RouterLink :to="`/posts/${post.id}`" class="thumb-link">
-      <div class="thumb" :style="post.thumbnailUrl ? { backgroundImage: `url(${post.thumbnailUrl})` } : null">
-        <span v-if="!post.thumbnailUrl" class="thumb-placeholder">🖌️</span>
-      </div>
+    <RouterLink v-if="post.thumbnailUrl" :to="`/posts/${post.id}`" class="thumb-link">
+      <div class="thumb" :style="{ backgroundImage: `url(${post.thumbnailUrl})` }" />
     </RouterLink>
     <div class="content">
       <RouterLink v-if="showBlogLink && post.blogName" :to="`/blogs/${post.blogId}`" class="blog-link">
@@ -39,12 +37,12 @@ defineProps({
 .post-card {
   display: block;
   background: var(--color-surface);
-  border: 2px solid var(--color-border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-card);
   overflow: hidden;
   color: var(--color-ink);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease;
 }
 .thumb-link, .title-link {
   display: block;
@@ -60,22 +58,13 @@ defineProps({
 }
 .blog-link:hover { text-decoration: underline; }
 .post-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 6px 6px 0 rgba(43, 43, 43, 0.18);
+  transform: translateY(-3px);
 }
 .thumb {
   aspect-ratio: 16 / 9;
-  background: linear-gradient(135deg, #E3F0FF, #FFE9E3);
   background-size: cover;
   background-position: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-bottom: 2px solid var(--color-border);
-}
-.thumb-placeholder {
-  font-size: 32px;
-  opacity: 0.6;
+  border-bottom: 1px solid var(--color-border);
 }
 .content {
   padding: 16px;
