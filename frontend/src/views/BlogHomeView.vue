@@ -5,12 +5,14 @@ import { useAuthStore } from '@/store/auth'
 import * as postApi from '@/api/post'
 import * as neighborApi from '@/api/neighbor'
 import * as uploadApi from '@/api/upload'
+import { useThumbnail } from '@/composables/useThumbnail'
 import TagChip from '@/components/TagChip.vue'
 import AppButton from '@/components/AppButton.vue'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { hasImage } = useThumbnail()
 
 const posts = ref([])
 const categories = ref([])
@@ -192,9 +194,9 @@ onMounted(() => {
           :to="`/posts/${p.id}`"
           class="popular-card"
         >
-          <div class="popular-thumb" :style="p.thumbnailUrl ? { backgroundImage: `url(${p.thumbnailUrl})` } : null">
+          <div class="popular-thumb" :style="hasImage(p.thumbnailUrl) ? { backgroundImage: `url(${p.thumbnailUrl})` } : null">
             <span class="rank">{{ i + 1 }}</span>
-            <div v-if="!p.thumbnailUrl" class="photo-placeholder">
+            <div v-if="!hasImage(p.thumbnailUrl)" class="photo-placeholder">
               <svg viewBox="0 0 24 24" class="photo-icon"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="M4 17l5-5 3.5 3.5L16 12l4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="photo-label">{{ photoLabel(p) }} 사진</span>
               <p v-if="isOwner()" class="browse-row">
@@ -242,8 +244,8 @@ onMounted(() => {
         <p v-if="!loading && posts.length === 0" class="empty">아직 작성된 글이 없어요 🌊</p>
 
         <RouterLink v-if="featuredPost" :to="`/posts/${featuredPost.id}`" class="featured">
-          <div class="featured-thumb" :style="featuredPost.thumbnailUrl ? { backgroundImage: `url(${featuredPost.thumbnailUrl})` } : null">
-            <div v-if="!featuredPost.thumbnailUrl" class="photo-placeholder">
+          <div class="featured-thumb" :style="hasImage(featuredPost.thumbnailUrl) ? { backgroundImage: `url(${featuredPost.thumbnailUrl})` } : null">
+            <div v-if="!hasImage(featuredPost.thumbnailUrl)" class="photo-placeholder">
               <svg viewBox="0 0 24 24" class="photo-icon"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="M4 17l5-5 3.5 3.5L16 12l4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="photo-label">{{ photoLabel(featuredPost) }} 사진</span>
               <p v-if="isOwner()" class="browse-row">
@@ -265,8 +267,8 @@ onMounted(() => {
           :to="`/posts/${p.id}`"
           class="post-row"
         >
-          <div class="row-thumb" :style="p.thumbnailUrl ? { backgroundImage: `url(${p.thumbnailUrl})` } : null">
-            <div v-if="!p.thumbnailUrl" class="photo-placeholder mini">
+          <div class="row-thumb" :style="hasImage(p.thumbnailUrl) ? { backgroundImage: `url(${p.thumbnailUrl})` } : null">
+            <div v-if="!hasImage(p.thumbnailUrl)" class="photo-placeholder mini">
               <svg viewBox="0 0 24 24" class="photo-icon"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path d="M4 17l5-5 3.5 3.5L16 12l4 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               <span class="photo-label">{{ photoLabel(p) }}</span>
               <p v-if="isOwner()" class="browse-row">

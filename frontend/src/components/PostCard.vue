@@ -1,15 +1,18 @@
 <script setup>
 import TagChip from './TagChip.vue'
+import { useThumbnail } from '@/composables/useThumbnail'
 
 defineProps({
   post: { type: Object, required: true },
   showBlogLink: { type: Boolean, default: false }
 })
+
+const { hasImage } = useThumbnail()
 </script>
 
 <template>
   <div class="post-card">
-    <RouterLink v-if="post.thumbnailUrl" :to="`/posts/${post.id}`" class="thumb-link">
+    <RouterLink v-if="hasImage(post.thumbnailUrl)" :to="`/posts/${post.id}`" class="thumb-link">
       <div class="thumb" :style="{ backgroundImage: `url(${post.thumbnailUrl})` }" />
     </RouterLink>
     <div class="content">

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/auth'
 import * as postApi from '@/api/post'
 import * as commentApi from '@/api/comment'
 import { renderMarkdown } from '@/utils/markdown'
+import { useThumbnail } from '@/composables/useThumbnail'
 import WatercolorCard from '@/components/WatercolorCard.vue'
 import TagChip from '@/components/TagChip.vue'
 import LikeHeart from '@/components/LikeHeart.vue'
@@ -14,6 +15,7 @@ import AppButton from '@/components/AppButton.vue'
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { hasImage } = useThumbnail()
 
 const post = ref(null)
 const related = ref([])
@@ -146,7 +148,7 @@ onMounted(load)
       <span>좋아요 {{ post.likeCount }}</span>
     </div>
 
-    <div v-if="post.thumbnailUrl" class="thumbnail" :style="{ backgroundImage: `url(${post.thumbnailUrl})` }" />
+    <div v-if="hasImage(post.thumbnailUrl)" class="thumbnail" :style="{ backgroundImage: `url(${post.thumbnailUrl})` }" />
 
     <WatercolorCard class="content-card">
       <!-- eslint-disable-next-line vue/no-v-html -->
@@ -165,8 +167,8 @@ onMounted(load)
       <h3>다른 인기글</h3>
       <div class="related-grid">
         <RouterLink v-for="rl in related" :key="rl.id" :to="`/posts/${rl.id}`" class="related-card">
-          <div class="related-thumb" :style="rl.thumbnailUrl ? { backgroundImage: `url(${rl.thumbnailUrl})` } : null">
-            <div v-if="!rl.thumbnailUrl" class="related-placeholder" />
+          <div class="related-thumb" :style="hasImage(rl.thumbnailUrl) ? { backgroundImage: `url(${rl.thumbnailUrl})` } : null">
+            <div v-if="!hasImage(rl.thumbnailUrl)" class="related-placeholder" />
           </div>
           <p class="related-title">{{ rl.title }}</p>
         </RouterLink>
